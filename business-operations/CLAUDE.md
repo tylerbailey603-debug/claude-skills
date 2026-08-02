@@ -11,7 +11,7 @@ The Business Operations domain ships skills that help **internal operators** (Bi
 | Skill | Job-to-be-done | `context: fork`? |
 |---|---|---|
 | `business-operations-skills` | Domain orchestrator — routes inquiries to the 6 sub-skills | YES |
-| `process-mapper` | BPMN-style process docs + bottleneck + cycle-time (Lean / TOC canon) | YES |
+| `process-mapper` | BPMN-style process docs + visual swim-lane + bottleneck + cycle-time (Lean / TOC canon) | NO |
 | `vendor-management` | Vendor scoring + SLA + third-party risk (NIST SP 800-161 / ISO 27036) | YES |
 | `capacity-planner` | Erlang-C queueing math for ops teams (NOT engineering capacity) | NO |
 | `internal-comms` | ADKAR + Kotter 8-step change comms (NOT marketing) | NO |
@@ -29,6 +29,12 @@ skill/
 ├── references/               # 3 ref docs, ≥ 7 cited sources each
 └── assets/                   # ≥ 1 user-customizable template
 ```
+
+Three tools is the floor, not a cap: `process-mapper` ships a fourth
+(`swimlane_renderer.py`) plus a shared, non-CLI `process_model.py`. Where a
+skill has more than one tool reading the same input, the schema and its
+validation belong in one shared in-skill module — never copied per script,
+which is how a stage-`type` typo once flipped a verdict silently.
 
 ## Hard rules
 

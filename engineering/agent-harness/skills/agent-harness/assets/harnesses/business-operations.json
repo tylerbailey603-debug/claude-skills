@@ -292,11 +292,28 @@
               "kind": "sample"
             }
           ]
+        },
+        {
+          "script": "business-operations/skills/process-mapper/scripts/swimlane_renderer.py",
+          "wired": true,
+          "supports_sample": true,
+          "verification": [
+            {
+              "cmd": "python3 business-operations/skills/process-mapper/scripts/swimlane_renderer.py --help",
+              "expect_exit": 0,
+              "kind": "smoke"
+            },
+            {
+              "cmd": "python3 business-operations/skills/process-mapper/scripts/swimlane_renderer.py --sample",
+              "expect_exit": 0,
+              "kind": "sample"
+            }
+          ]
         }
       ],
       "agentic_signals": {
         "goal_intake": true,
-        "refusal_gate": false,
+        "refusal_gate": true,
         "verification": true,
         "loop_discipline": true,
         "close_out": true

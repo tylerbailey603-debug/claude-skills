@@ -5,11 +5,23 @@ the process-mapper tools. Fill in the stage table first, then translate it
 into the JSON skeleton at the bottom of this file. Feed that JSON into the
 three CLI tools:
 
+```bash
+python3 scripts/process_documenter.py  --input my-process.json
+python3 scripts/cycle_time_analyzer.py --input my-process.json --profile saas
+python3 scripts/bottleneck_detector.py --input my-process.json --profile saas
+
+# Visual swim-lane: self-contained HTML, or Mermaid for GitHub / Notion
+python3 scripts/swimlane_renderer.py --input my-process.json --profile saas \
+    --output html --dest my-process.html
+python3 scripts/swimlane_renderer.py --input my-process.json --output mermaid
 ```
-python3 scripts/process_documenter.py    --input my-process.json
-python3 scripts/bottleneck_detector.py   --input my-process.json --profile saas
-python3 scripts/cycle_time_analyzer.py   --input my-process.json --profile saas
-```
+
+Shared CLI contract: `--input` / `--sample`, `--output` selects the format,
+`--dest` writes to a file instead of stdout, `--profile` calibrates thresholds.
+Invalid input exits **3** and names every offending stage.
+
+Prefer a filled-in starting point? `assets/sample_p2p_process.json` is a
+worked 18-stage procure-to-pay process across 7 lanes — copy it and edit.
 
 ---
 

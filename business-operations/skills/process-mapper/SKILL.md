@@ -33,11 +33,16 @@ This skill produces a documented process map, identifies where work waits, and p
 
 Five-step deterministic flow:
 
-1. **Intake.** Capture the process as a JSON file with one entry per stage: `name`, `owner`, `type` (`value-add` | `wait` | `rework`), `duration_minutes_p50`, `duration_minutes_p90`. Use `assets/process_template.md` and its JSON skeleton.
+1. **Intake.** Capture the process as a JSON file with one entry per stage: `name`, `owner`, `type` (`value-add` | `wait` | `rework`), `duration_minutes_p50`, `duration_minutes_p90`. Use `assets/process_template.md` and its JSON skeleton, or start from the worked 18-stage example in `assets/sample_p2p_process.json`.
 2. **Map stages.** Run `process_documenter.py` to produce an ASCII swim-lane diagram + a normalized JSON artifact. The swim-lane separates lanes by owner so cross-functional handoffs become visible.
-3. **Measure cycle time.** Run `cycle_time_analyzer.py` to compute total P50, total P90, value-add ratio (VA%), and a Little's-Law throughput estimate. Verdict: VA% > 25% = HEALTHY, 10–25% = TYPICAL, < 10% = WASTE-HEAVY.
+3. **Measure cycle time.** Run `cycle_time_analyzer.py` to compute total P50, total P90, value-add ratio (VA%), and a Little's-Law throughput estimate. Verdict on the `saas` profile: VA% >= 25% = HEALTHY, 10–25% = TYPICAL, < 10% = WASTE-HEAVY. Each `--profile` calibrates these bands differently.
 4. **Detect bottlenecks.** Run `bottleneck_detector.py` with the appropriate `--profile` (saas / services / manufacturing / healthcare). Output is a ranked list with severity (CRITICAL / HIGH / MEDIUM), root-cause hypothesis, and one recommended action per finding.
-5. **Recommend.** Pair the bottleneck list with the cycle-time verdict; recommend a single constraint-focused intervention per Goldratt's "subordinate everything to the constraint" rule. Don't recommend optimization of a non-constraint stage.
+5. **Visualize.** Run `swimlane_renderer.py` for a graphical swim-lane: `--output html` for a self-contained page (lanes, colour-coded stage types, highlighted constraint, value-stream time ribbon, embedded findings), or `--output mermaid` for a diagram that renders in GitHub / Notion / markdown. The highlighted constraint is imported from `bottleneck_detector`, so the picture can never disagree with the ranked findings.
+6. **Recommend.** Pair the bottleneck list with the cycle-time verdict; recommend a single constraint-focused intervention per Goldratt's "subordinate everything to the constraint" rule. Don't recommend optimization of a non-constraint stage.
+
+**Scope discipline.** Decide before mapping whether the process boundary includes stages the process owner does not control (supplier lead time, customer response, regulator review). Both scopes are legitimate, but they produce different constraints: run the analysis twice and say which scope each number came from. An end-to-end map that is dominated by an external party's stage will report a constraint nobody in the room can act on.
+
+**Stop condition (iteration cap).** Re-map at most three times. Stop when the cycle-time verdict reaches HEALTHY for the chosen profile, or when a pass produces no new finding above MEDIUM. If three passes have not moved the verdict, escalate to the named process owner with the current bottleneck list rather than re-running — the constraint is then a resourcing or authority problem, not a mapping problem.
 
 ## Scripts
 
@@ -45,20 +50,39 @@ Five-step deterministic flow:
 
 **`scripts/bottleneck_detector.py`** — Applies three deterministic detection rules: (a) stage P50 > 2× mean of value-add stages, (b) wait-state % > 40% of total cycle, (c) rework % > 15%. Thresholds adjust by `--profile` because SaaS, services, manufacturing, and healthcare have different "normal" wait ratios. Output is a ranked list with severity, hypothesis, action.
 
-**`scripts/cycle_time_analyzer.py`** — Computes total P50 and P90 cycle time, value-add ratio (VA%), wait %, rework %, and a Little's-Law throughput estimate (WIP / cycle time). Per Lean canon: VA% > 25% = HEALTHY, 10–25% = TYPICAL (most non-manufacturing processes land here), < 10% = WASTE-HEAVY.
+**`scripts/cycle_time_analyzer.py`** — Computes total P50 and P90 cycle time, value-add ratio (VA%), wait %, rework %, and a Little's-Law throughput estimate (WIP / cycle time). Per Lean canon: VA% >= 25% = HEALTHY, 10–25% = TYPICAL (most non-manufacturing processes land here), < 10% = WASTE-HEAVY. Bands shift per `--profile`.
+
+**`scripts/swimlane_renderer.py`** — Renders the visual swim-lane. `--output html` emits a single self-contained file (no external requests, light/dark aware, prints to PDF) combining a BPMN-style lane diagram, a Lean value-stream time ribbon where each segment's width is its literal share of total P50, and the ranked findings. `--output mermaid` emits a `flowchart LR` with one subgraph per lane. `--fragment` drops the document wrapper for embedding in a host page.
+
+**`scripts/process_model.py`** — Shared library (not a CLI): the input schema, its validation rules, the built-in sample, and the exit-code convention. Every tool loads input through it, so a malformed stage `type` is refused identically everywhere instead of silently skewing one tool's arithmetic.
 
 ## Quick example
 
 ```bash
-# Renders a BPMN-style swim-lane diagram + normalized JSON for the built-in 6-stage procurement-intake example
-cd business-operations/skills/process-mapper && python3 scripts/process_documenter.py --sample
+cd business-operations/skills/process-mapper
+
+# 1. Map, measure, detect — on the built-in sample
+python3 scripts/process_documenter.py  --sample
+python3 scripts/cycle_time_analyzer.py --sample --profile services
+python3 scripts/bottleneck_detector.py --sample --profile services
+
+# 2. Visualize a real process (worked 18-stage procure-to-pay example ships in assets/)
+python3 scripts/swimlane_renderer.py \
+    --input assets/sample_p2p_process.json --profile services \
+    --output html --dest p2p_swimlane.html
+
+# 3. Same map as a Mermaid diagram for GitHub / Notion
+python3 scripts/swimlane_renderer.py \
+    --input assets/sample_p2p_process.json --output mermaid
 ```
+
+All tools share one CLI contract: `--input` / `--sample`, `--output` for format, `--dest` to write to a file, `--profile` where thresholds apply. Invalid input exits **3** with every offending stage named; argparse usage errors exit 2.
 
 ## References
 
 - `references/lean_six_sigma_canon.md` — TIMWOOD wastes, value-stream mapping, Theory of Constraints, Kanban WIP, Little's Law. Cites Womack & Jones, Rother & Shook, Goldratt, Ohno, Liker, Pyzdek, Anderson.
 - `references/bpmn_essentials.md` — Pools, lanes, gateways, events, message flows, common notation mistakes. Cites the OMG BPMN 2.0 spec, Silver, Allweyer, Freund/Rücker, OASIS, ISO/IEC 19510:2013.
-- `references/bottleneck_anti_patterns.md` — Seven specific anti-patterns drawn from Goldratt, Kim et al., Spear, DORA, Deming, and process-mining research.
+- `references/bottleneck_anti_patterns.md` — Nine specific anti-patterns (AP-1…AP-9) drawn from Goldratt, Kim et al., Spear, DORA, Deming, and process-mining research.
 
 ## Assumptions
 
@@ -106,4 +130,12 @@ Before invoking the tools, the orchestrator (or `/cs:grill-bizops`) walks the us
    Recommended: surface it explicitly; rework loops belong in the map.
    Canon: Pyzdek (*Six Sigma Handbook*) — hidden rework drives 30-50% of total cycle time in service processes.
 
-Walk depth-first. Don't open question 4 before 1-3 are answered. After all 5 are locked, invoke `process_documenter.py` → `bottleneck_detector.py` → `cycle_time_analyzer.py` in sequence.
+6. **"Where does this process start and stop — and does that boundary include stages you don't control?"**
+   Recommended: name the trigger event and end state explicitly, then map both scopes if an external party owns a stage inside the boundary.
+   Canon: Rother & Shook 1999 (*Learning to See*) — the value stream is defined by its door-to-door boundary; a map whose constraint sits outside that boundary cannot drive action.
+
+7. **"What's the WIP limit at each stage, and is anything currently over it?"**
+   Recommended: capture the concurrent item count per stage, not just durations — it is what makes the Little's-Law throughput estimate meaningful rather than decorative.
+   Canon: Anderson 2010 (*Kanban*) — an unbounded queue guarantees cycle time grows without any stage getting slower.
+
+Walk depth-first. Don't open question 4 before 1-3 are answered. After all 7 are locked, invoke `process_documenter.py` → `cycle_time_analyzer.py` → `bottleneck_detector.py` → `swimlane_renderer.py` in sequence.

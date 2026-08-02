@@ -1,0 +1,134 @@
+{
+  "process_name": "Procure-to-Pay (P2P)",
+  "data_source": "Benchmark estimates, not measured data. Replace every duration with figures pulled from your ERP / P2P system before making any change decision. Per Goldratt (The Goal), optimizing an estimated bottleneck reliably attacks the wrong constraint.",
+  "scope_note": "End-to-end scope: includes supplier lead time and supplier invoicing delay, which the P2P process owner does not control. For an internal-administration-only view, reclassify 'Supplier fulfils order' and 'Wait: supplier invoice arrives' or drop them; VA% falls sharply and the internal constraint becomes visible.",
+  "wip": 40,
+  "stages": [
+    {
+      "name": "Identify need and raise requisition",
+      "owner": "Requester",
+      "type": "value-add",
+      "duration_minutes_p50": 30,
+      "duration_minutes_p90": 90
+    },
+    {
+      "name": "Wait: manager approval queue",
+      "owner": "Budget Approver",
+      "type": "wait",
+      "duration_minutes_p50": 960,
+      "duration_minutes_p90": 2880
+    },
+    {
+      "name": "Manager approves requisition",
+      "owner": "Budget Approver",
+      "type": "value-add",
+      "duration_minutes_p50": 15,
+      "duration_minutes_p90": 45
+    },
+    {
+      "name": "Wait: procurement intake queue",
+      "owner": "Procurement",
+      "type": "wait",
+      "duration_minutes_p50": 480,
+      "duration_minutes_p90": 1920
+    },
+    {
+      "name": "Procurement validates requisition",
+      "owner": "Procurement",
+      "type": "value-add",
+      "duration_minutes_p50": 45,
+      "duration_minutes_p90": 120
+    },
+    {
+      "name": "Rework: incomplete requisition returned",
+      "owner": "Requester",
+      "type": "rework",
+      "duration_minutes_p50": 300,
+      "duration_minutes_p90": 1440
+    },
+    {
+      "name": "Sourcing / RFQ above threshold",
+      "owner": "Procurement",
+      "type": "value-add",
+      "duration_minutes_p50": 600,
+      "duration_minutes_p90": 2880
+    },
+    {
+      "name": "Wait: vendor master and onboarding check",
+      "owner": "Procurement",
+      "type": "wait",
+      "duration_minutes_p50": 1440,
+      "duration_minutes_p90": 5760
+    },
+    {
+      "name": "Create and issue purchase order",
+      "owner": "Procurement",
+      "type": "value-add",
+      "duration_minutes_p50": 30,
+      "duration_minutes_p90": 90
+    },
+    {
+      "name": "Wait: supplier acknowledgement",
+      "owner": "Supplier",
+      "type": "wait",
+      "duration_minutes_p50": 720,
+      "duration_minutes_p90": 2880
+    },
+    {
+      "name": "Supplier fulfils order",
+      "owner": "Supplier",
+      "type": "value-add",
+      "duration_minutes_p50": 4320,
+      "duration_minutes_p90": 14400
+    },
+    {
+      "name": "Goods receipt / service confirmation",
+      "owner": "Receiving",
+      "type": "value-add",
+      "duration_minutes_p50": 20,
+      "duration_minutes_p90": 75
+    },
+    {
+      "name": "Wait: supplier invoice arrives",
+      "owner": "Supplier",
+      "type": "wait",
+      "duration_minutes_p50": 2880,
+      "duration_minutes_p90": 10080
+    },
+    {
+      "name": "Invoice capture and coding",
+      "owner": "Accounts Payable",
+      "type": "value-add",
+      "duration_minutes_p50": 25,
+      "duration_minutes_p90": 90
+    },
+    {
+      "name": "Three-way match (PO / GR / invoice)",
+      "owner": "Accounts Payable",
+      "type": "value-add",
+      "duration_minutes_p50": 15,
+      "duration_minutes_p90": 40
+    },
+    {
+      "name": "Rework: match exception resolution",
+      "owner": "Accounts Payable",
+      "type": "rework",
+      "duration_minutes_p50": 960,
+      "duration_minutes_p90": 4320
+    },
+    {
+      "name": "Wait: payment run schedule",
+      "owner": "Treasury",
+      "type": "wait",
+      "duration_minutes_p50": 4320,
+      "duration_minutes_p90": 10080
+    },
+    {
+      "name": "Execute payment and remittance",
+      "owner": "Treasury",
+      "type": "value-add",
+      "duration_minutes_p50": 10,
+      "duration_minutes_p90": 30
+    }
+  ]
+}
