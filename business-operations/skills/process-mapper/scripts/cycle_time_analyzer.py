@@ -4,12 +4,13 @@
 Compute total cycle time (P50, P90), value-add ratio (VA%), wait %, rework %,
 and a Little's-Law throughput estimate for a documented business process.
 
-Verdict per Lean canon:
-  VA% > 25%         -> HEALTHY
-  10% <= VA% <= 25% -> TYPICAL
+Verdict per Lean canon (bands below are the `saas` defaults; each --profile
+calibrates them differently):
+  VA% >= 25%        -> HEALTHY
+  10% <= VA% < 25%  -> TYPICAL
   VA% < 10%         -> WASTE-HEAVY
 
-Stdlib only.
+Stdlib only. Invalid input exits 3; see `process_model.py` for the schema.
 """
 from __future__ import annotations
 
@@ -18,6 +19,10 @@ import json
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from process_model import resolve  # noqa: E402
 
 
 # Per-industry verdict bands. Manufacturing benchmarks higher VA% than services.
@@ -157,27 +162,6 @@ def render_markdown(report: CycleTimeReport) -> str:
     return "\n".join(lines)
 
 
-def sample_process() -> dict:
-    return {
-        "process_name": "Procurement Intake (Sample)",
-        "wip": 12,
-        "stages": [
-            {"name": "Submit PO", "owner": "Requestor", "type": "value-add",
-             "duration_minutes_p50": 15, "duration_minutes_p90": 30},
-            {"name": "Wait for manager", "owner": "Manager", "type": "wait",
-             "duration_minutes_p50": 480, "duration_minutes_p90": 1440},
-            {"name": "Manager approves", "owner": "Manager", "type": "value-add",
-             "duration_minutes_p50": 10, "duration_minutes_p90": 25},
-            {"name": "Wait for finance", "owner": "Finance", "type": "wait",
-             "duration_minutes_p50": 720, "duration_minutes_p90": 2880},
-            {"name": "Finance validates", "owner": "Finance", "type": "value-add",
-             "duration_minutes_p50": 20, "duration_minutes_p90": 60},
-            {"name": "Rework: missing W-9", "owner": "Requestor", "type": "rework",
-             "duration_minutes_p50": 120, "duration_minutes_p90": 360},
-        ],
-    }
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Analyze cycle time, value-add ratio, and throughput of a process."
@@ -196,45 +180,30 @@ def main() -> int:
         help="Output format (default: markdown).",
     )
     parser.add_argument(
+        "--dest",
+        type=Path,
+        help="Write output to this file instead of stdout.",
+    )
+    parser.add_argument(
         "--sample",
         action="store_true",
-        help="Use a built-in sample process and exit.",
+        help="Use the built-in sample process.",
     )
     args = parser.parse_args()
 
-    if args.sample:
-        raw = sample_process()
-    else:
-        if not args.input:
-            parser.error("--input is required unless --sample is given")
-        if not args.input.exists():
-            parser.error(f"input file not found: {args.input}")
-        with args.input.open("r", encoding="utf-8") as f:
-            raw = json.load(f)
-
-    stages = []
-    for s in raw.get("stages", []):
-        stages.append(
-            {
-                "name": s.get("name", ""),
-                "owner": s.get("owner", ""),
-                "type": s.get("type", ""),
-                "duration_minutes_p50": float(s.get("duration_minutes_p50", 0)),
-                "duration_minutes_p90": float(s.get("duration_minutes_p90", 0)),
-            }
-        )
-    normalized = {
-        "process_name": raw.get("process_name", "Untitled Process"),
-        "wip": int(raw.get("wip", 0) or 0),
-        "stages": stages,
-    }
-
+    normalized = resolve(args, parser)
     report = analyze(normalized, args.profile)
 
     if args.output == "json":
-        print(json.dumps(asdict(report), indent=2))
+        out = json.dumps(asdict(report), indent=2)
     else:
-        print(render_markdown(report))
+        out = render_markdown(report)
+
+    if args.dest:
+        args.dest.write_text(out, encoding="utf-8")
+        print(f"wrote {args.dest}", file=sys.stderr)
+    else:
+        print(out)
     return 0
 
 

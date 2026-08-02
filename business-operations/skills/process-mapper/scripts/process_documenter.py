@@ -5,108 +5,22 @@ Read a JSON description of a business process (one entry per stage) and emit:
   - a text-based BPMN-style swim-lane diagram in Markdown, OR
   - a normalized JSON artifact for downstream tools.
 
-Stdlib only. Use `--sample` to print a 6-stage procurement-intake example to
-stdout.
+Stdlib only. Use `--sample` to run against a built-in 6-stage
+procurement-intake example.
 
-Input schema (JSON):
-{
-  "process_name": "Procurement Intake",
-  "wip": 12,                       # optional, integer; used by cycle_time_analyzer
-  "stages": [
-    {
-      "name": "Requestor submits PO request",
-      "owner": "Requestor",
-      "type": "value-add",         # one of: value-add | wait | rework
-      "duration_minutes_p50": 15,
-      "duration_minutes_p90": 30
-    },
-    ...
-  ]
-}
+The input schema, its validation rules, and the shared exit-code convention
+live in `process_model.py`. Invalid input exits 3.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import sys
-from dataclasses import dataclass, asdict
-from enum import Enum
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-VALID_TYPES = {"value-add", "wait", "rework"}
-
-
-class StageType(str, Enum):
-    VALUE_ADD = "value-add"
-    WAIT = "wait"
-    REWORK = "rework"
-
-
-@dataclass
-class Stage:
-    name: str
-    owner: str
-    type: str
-    duration_minutes_p50: float
-    duration_minutes_p90: float
-
-    def validate(self, idx: int) -> list[str]:
-        errs: list[str] = []
-        if not self.name:
-            errs.append(f"stage[{idx}]: missing 'name'")
-        if not self.owner:
-            errs.append(f"stage[{idx}]: missing 'owner'")
-        if self.type not in VALID_TYPES:
-            errs.append(
-                f"stage[{idx}] ('{self.name}'): invalid type '{self.type}' "
-                f"(expected one of {sorted(VALID_TYPES)})"
-            )
-        if self.duration_minutes_p50 < 0:
-            errs.append(f"stage[{idx}] ('{self.name}'): p50 must be >= 0")
-        if self.duration_minutes_p90 < self.duration_minutes_p50:
-            errs.append(
-                f"stage[{idx}] ('{self.name}'): p90 ({self.duration_minutes_p90}) "
-                f"< p50 ({self.duration_minutes_p50})"
-            )
-        return errs
-
-
-def load_process(path: Path) -> dict:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def normalize(raw: dict) -> dict:
-    """Validate + return a normalized dict. Raises ValueError on bad input."""
-    if "stages" not in raw or not isinstance(raw["stages"], list):
-        raise ValueError("input must include a non-empty 'stages' list")
-
-    stages: list[Stage] = []
-    errors: list[str] = []
-    for idx, s in enumerate(raw["stages"]):
-        try:
-            stage = Stage(
-                name=s.get("name", ""),
-                owner=s.get("owner", ""),
-                type=s.get("type", ""),
-                duration_minutes_p50=float(s.get("duration_minutes_p50", 0)),
-                duration_minutes_p90=float(s.get("duration_minutes_p90", 0)),
-            )
-        except (TypeError, ValueError) as e:
-            errors.append(f"stage[{idx}]: parse error: {e}")
-            continue
-        errors.extend(stage.validate(idx))
-        stages.append(stage)
-
-    if errors:
-        raise ValueError("invalid input:\n  - " + "\n  - ".join(errors))
-
-    return {
-        "process_name": raw.get("process_name", "Untitled Process"),
-        "wip": int(raw.get("wip", 0)) if raw.get("wip") is not None else 0,
-        "stages": [asdict(s) for s in stages],
-    }
+from process_model import resolve  # noqa: E402
 
 
 def render_markdown(normalized: dict) -> str:
@@ -186,101 +100,41 @@ def render_markdown(normalized: dict) -> str:
     return "\n".join(lines)
 
 
-def sample_process() -> dict:
-    return {
-        "process_name": "Procurement Intake (Sample)",
-        "wip": 12,
-        "stages": [
-            {
-                "name": "Requestor submits PO request",
-                "owner": "Requestor",
-                "type": "value-add",
-                "duration_minutes_p50": 15,
-                "duration_minutes_p90": 30,
-            },
-            {
-                "name": "Wait for manager review queue",
-                "owner": "Manager",
-                "type": "wait",
-                "duration_minutes_p50": 480,
-                "duration_minutes_p90": 1440,
-            },
-            {
-                "name": "Manager approves request",
-                "owner": "Manager",
-                "type": "value-add",
-                "duration_minutes_p50": 10,
-                "duration_minutes_p90": 25,
-            },
-            {
-                "name": "Wait for finance review queue",
-                "owner": "Finance",
-                "type": "wait",
-                "duration_minutes_p50": 720,
-                "duration_minutes_p90": 2880,
-            },
-            {
-                "name": "Finance validates budget code",
-                "owner": "Finance",
-                "type": "value-add",
-                "duration_minutes_p50": 20,
-                "duration_minutes_p90": 60,
-            },
-            {
-                "name": "Rework: missing vendor W-9",
-                "owner": "Requestor",
-                "type": "rework",
-                "duration_minutes_p50": 120,
-                "duration_minutes_p90": 360,
-            },
-        ],
-    }
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Document a business process as a BPMN-style swim-lane diagram."
     )
     parser.add_argument("--input", type=Path, help="Path to process JSON file.")
     parser.add_argument(
-        "--output", type=Path, help="Output file path (default: stdout)."
-    )
-    parser.add_argument(
+        "--output",
         "--format",
+        dest="output",
         choices=["markdown", "json"],
         default="markdown",
-        help="Output format (default: markdown).",
+        help="Output format (default: markdown). --format is a deprecated alias.",
+    )
+    parser.add_argument(
+        "--dest",
+        type=Path,
+        help="Write output to this file instead of stdout.",
     )
     parser.add_argument(
         "--sample",
         action="store_true",
-        help="Print a 6-stage procurement-intake sample and exit.",
+        help="Run against the built-in 6-stage procurement-intake sample.",
     )
     args = parser.parse_args()
 
-    if args.sample:
-        raw = sample_process()
-    else:
-        if not args.input:
-            parser.error("--input is required unless --sample is given")
-        if not args.input.exists():
-            parser.error(f"input file not found: {args.input}")
-        raw = load_process(args.input)
+    normalized = resolve(args, parser)
 
-    try:
-        normalized = normalize(raw)
-    except ValueError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
-
-    if args.format == "json":
+    if args.output == "json":
         out = json.dumps(normalized, indent=2)
     else:
         out = render_markdown(normalized)
 
-    if args.output:
-        args.output.write_text(out, encoding="utf-8")
-        print(f"wrote {args.output}", file=sys.stderr)
+    if args.dest:
+        args.dest.write_text(out, encoding="utf-8")
+        print(f"wrote {args.dest}", file=sys.stderr)
     else:
         print(out)
     return 0

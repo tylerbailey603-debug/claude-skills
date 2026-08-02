@@ -1,6 +1,6 @@
 # Bottleneck Anti-Patterns
 
-Seven plus specific anti-patterns that recur in business-process improvement
+Nine specific anti-patterns (AP-1…AP-9) that recur in business-process improvement
 work. Each is sourced to primary literature, and each has a corresponding
 detection or recommendation in the skill's tools.
 

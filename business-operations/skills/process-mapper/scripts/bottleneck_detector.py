@@ -6,11 +6,15 @@ list of bottlenecks with severity, root-cause hypothesis, and a recommended
 action.
 
 Rules (defaults; tuned per industry profile):
-  R1. Stage P50 > 2x mean of value-add stages              -> stage bottleneck
+  R1. Value-add stage P50 > 2x mean of value-add stages    -> stage bottleneck
   R2. Wait-state share of total cycle > 40%                -> handoff bottleneck
   R3. Rework share of total cycle > 15%                    -> quality bottleneck
 
-Stdlib only.
+R1 deliberately considers value-add stages only. Wait and rework minutes are
+reported in aggregate by R2/R3, which name their own worst offender; scanning
+every stage in R1 as well would report the same minutes twice.
+
+Stdlib only. Invalid input exits 3; see `process_model.py` for the schema.
 """
 from __future__ import annotations
 
@@ -20,6 +24,10 @@ import statistics
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from process_model import resolve  # noqa: E402
 
 
 # Per-industry threshold calibration. Manufacturing tolerates less wait;
@@ -57,25 +65,34 @@ class Finding:
     hypothesis: str
     action: str
     impact_minutes_p50: float
+    # Index of the single stage this finding points at, when there is one.
+    # Consumed by swimlane_renderer.py to highlight the constraint.
+    stage_index: int | None = None
 
     def severity_rank(self) -> int:
         return {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2}.get(self.severity, 3)
 
 
-def load(path: Path) -> dict:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
 def classify_severity(share: float, threshold: float) -> str:
-    """Severity based on how far over the threshold the offender is."""
-    if share <= threshold:
-        return "MEDIUM"
+    """Severity based on how far over the threshold the offender is.
+
+    Callers only reach this once `share > threshold` is already established.
+    """
     if share >= threshold * 2:
         return "CRITICAL"
     if share >= threshold * 1.5:
         return "HIGH"
     return "MEDIUM"
+
+
+def worst_stage(stages: list[dict], stage_type: str) -> tuple[int, dict] | None:
+    """Return (index, stage) of the longest-P50 stage of the given type."""
+    candidates = [
+        (i, s) for i, s in enumerate(stages) if s["type"] == stage_type
+    ]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda t: t[1]["duration_minutes_p50"])
 
 
 def detect(normalized: dict, profile: str) -> list[Finding]:
@@ -94,10 +111,17 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
     ]
     va_mean = statistics.mean(va_durations) if va_durations else 0.0
 
-    # R1: per-stage runaway vs value-add mean
+    # R1: per-stage runaway vs value-add mean.
+    #
+    # Value-add stages ONLY. Wait and rework minutes are already reported in
+    # aggregate by R2 and R3; emitting a per-stage finding for them as well
+    # double-counts the same minutes and pads the list, which buries the real
+    # constraint. R2/R3 name their own worst offender instead (below).
     if va_mean > 0:
         threshold_minutes = va_mean * prof["stage_multiplier"]
-        for s in stages:
+        for idx, s in enumerate(stages):
+            if s["type"] != "value-add":
+                continue
             if s["duration_minutes_p50"] > threshold_minutes:
                 ratio = s["duration_minutes_p50"] / va_mean
                 if ratio >= prof["stage_multiplier"] * 3:
@@ -108,13 +132,13 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
                     sev = "MEDIUM"
                 hypothesis = (
                     "Stage runs much longer than the typical value-add step; "
-                    "common causes: batched approvals, single approver, "
+                    "common causes: batched work, a single qualified owner, "
                     "missing self-service, or unclear acceptance criteria."
                 )
                 action = (
-                    "Decompose the stage; check if approval can be parallelized "
-                    "or made conditional. If wait-state, apply Kanban WIP limit "
-                    "or remove the handoff."
+                    "Decompose the stage; check whether it can be parallelized "
+                    "or made conditional on a value/risk threshold. Confirm it "
+                    "is genuinely value-add before investing in speeding it up."
                 )
                 findings.append(
                     Finding(
@@ -128,6 +152,7 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
                         hypothesis=hypothesis,
                         action=action,
                         impact_minutes_p50=s["duration_minutes_p50"],
+                        stage_index=idx,
                     )
                 )
 
@@ -135,15 +160,24 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
     wait_share = wait_p50 / total_p50
     if wait_share > prof["wait_share_max"]:
         sev = classify_severity(wait_share, prof["wait_share_max"])
+        worst_wait = worst_stage(stages, "wait")
+        detail = (
+            f"Wait stages account for {wait_share*100:.0f}% of total P50, "
+            f"vs {prof['wait_share_max']*100:.0f}% profile threshold."
+        )
+        if worst_wait is not None:
+            w_idx, w_stage = worst_wait
+            detail += (
+                f" Longest single wait: '{w_stage['name']}' "
+                f"({w_stage['duration_minutes_p50']:.0f} min, "
+                f"{w_stage['duration_minutes_p50']/total_p50*100:.0f}% of total)."
+            )
         findings.append(
             Finding(
                 severity=sev,
                 rule="R2",
                 title="Process is dominated by wait time",
-                detail=(
-                    f"Wait stages account for {wait_share*100:.0f}% of total P50, "
-                    f"vs {prof['wait_share_max']*100:.0f}% profile threshold."
-                ),
+                detail=detail,
                 hypothesis=(
                     "Handoffs queue work behind a single role or batch. Per "
                     "Theory of Constraints, the system throughput is set by "
@@ -155,6 +189,7 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
                     "queue cannot grow."
                 ),
                 impact_minutes_p50=wait_p50,
+                stage_index=worst_wait[0] if worst_wait is not None else None,
             )
         )
 
@@ -162,15 +197,23 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
     rework_share = rework_p50 / total_p50
     if rework_share > prof["rework_share_max"]:
         sev = classify_severity(rework_share, prof["rework_share_max"])
+        worst_rework = worst_stage(stages, "rework")
+        detail = (
+            f"Rework accounts for {rework_share*100:.0f}% of total P50, "
+            f"vs {prof['rework_share_max']*100:.0f}% profile threshold."
+        )
+        if worst_rework is not None:
+            r_idx, r_stage = worst_rework
+            detail += (
+                f" Largest rework loop: '{r_stage['name']}' "
+                f"({r_stage['duration_minutes_p50']:.0f} min)."
+            )
         findings.append(
             Finding(
                 severity=sev,
                 rule="R3",
                 title="Process has excessive rework",
-                detail=(
-                    f"Rework accounts for {rework_share*100:.0f}% of total P50, "
-                    f"vs {prof['rework_share_max']*100:.0f}% profile threshold."
-                ),
+                detail=detail,
                 hypothesis=(
                     "Defects escape upstream stages. Six-Sigma canon: rework is "
                     "always an upstream-quality problem, never a downstream one."
@@ -180,6 +223,7 @@ def detect(normalized: dict, profile: str) -> list[Finding]:
                     "that can detect the defect; do not add inspection downstream."
                 ),
                 impact_minutes_p50=rework_p50,
+                stage_index=worst_rework[0] if worst_rework is not None else None,
             )
         )
 
@@ -210,28 +254,6 @@ def render_markdown(normalized: dict, findings: list[Finding], profile: str) -> 
     return "\n".join(lines)
 
 
-def sample_process() -> dict:
-    # Reuses procurement-intake shape from process_documenter
-    return {
-        "process_name": "Procurement Intake (Sample)",
-        "wip": 12,
-        "stages": [
-            {"name": "Submit PO", "owner": "Requestor", "type": "value-add",
-             "duration_minutes_p50": 15, "duration_minutes_p90": 30},
-            {"name": "Wait for manager", "owner": "Manager", "type": "wait",
-             "duration_minutes_p50": 480, "duration_minutes_p90": 1440},
-            {"name": "Manager approves", "owner": "Manager", "type": "value-add",
-             "duration_minutes_p50": 10, "duration_minutes_p90": 25},
-            {"name": "Wait for finance", "owner": "Finance", "type": "wait",
-             "duration_minutes_p50": 720, "duration_minutes_p90": 2880},
-            {"name": "Finance validates", "owner": "Finance", "type": "value-add",
-             "duration_minutes_p50": 20, "duration_minutes_p90": 60},
-            {"name": "Rework: missing W-9", "owner": "Requestor", "type": "rework",
-             "duration_minutes_p50": 120, "duration_minutes_p90": 360},
-        ],
-    }
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Detect bottlenecks in a documented business process."
@@ -250,54 +272,37 @@ def main() -> int:
         help="Output format (default: markdown).",
     )
     parser.add_argument(
+        "--dest",
+        type=Path,
+        help="Write output to this file instead of stdout.",
+    )
+    parser.add_argument(
         "--sample",
         action="store_true",
-        help="Use a built-in sample process and exit.",
+        help="Use the built-in sample process.",
     )
     args = parser.parse_args()
 
-    if args.sample:
-        raw = sample_process()
-    else:
-        if not args.input:
-            parser.error("--input is required unless --sample is given")
-        if not args.input.exists():
-            parser.error(f"input file not found: {args.input}")
-        raw = load(args.input)
-
-    # Minimal normalization: tolerate the same fields as process_documenter
-    stages = []
-    for s in raw.get("stages", []):
-        stages.append(
-            {
-                "name": s.get("name", ""),
-                "owner": s.get("owner", ""),
-                "type": s.get("type", ""),
-                "duration_minutes_p50": float(s.get("duration_minutes_p50", 0)),
-                "duration_minutes_p90": float(s.get("duration_minutes_p90", 0)),
-            }
-        )
-    normalized = {
-        "process_name": raw.get("process_name", "Untitled Process"),
-        "wip": int(raw.get("wip", 0) or 0),
-        "stages": stages,
-    }
-
+    normalized = resolve(args, parser)
     findings = detect(normalized, args.profile)
 
     if args.output == "json":
-        print(
-            json.dumps(
-                {
-                    "process_name": normalized["process_name"],
-                    "profile": args.profile,
-                    "findings": [asdict(f) for f in findings],
-                },
-                indent=2,
-            )
+        out = json.dumps(
+            {
+                "process_name": normalized["process_name"],
+                "profile": args.profile,
+                "findings": [asdict(f) for f in findings],
+            },
+            indent=2,
         )
     else:
-        print(render_markdown(normalized, findings, args.profile))
+        out = render_markdown(normalized, findings, args.profile)
+
+    if args.dest:
+        args.dest.write_text(out, encoding="utf-8")
+        print(f"wrote {args.dest}", file=sys.stderr)
+    else:
+        print(out)
     return 0
 
 
