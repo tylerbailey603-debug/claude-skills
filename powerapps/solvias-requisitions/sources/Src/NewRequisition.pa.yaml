@@ -1,0 +1,796 @@
+Screens:
+  NewRequisition:
+    Properties:
+      Fill: =RGBA(247, 248, 250, 1)
+      OnVisible: |
+        =Set(varStep, 1);
+        If(IsEmpty(colNewLines), Collect(colNewLines, {SKU:"", Desc:"", Qty:1, Price:0}))
+    Children:
+
+      - conSidebar_New:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =0
+            Y: =0
+            Width: =248
+            Height: =768
+            Fill: =RGBA(255, 255, 255, 1)
+          Children:
+            - recSideBorder_New:
+                Control: Rectangle
+                Properties:
+                  X: =247
+                  Y: =0
+                  Width: =1
+                  Height: =768
+                  Fill: =RGBA(227, 230, 234, 1)
+            - lblLogo_New:
+                Control: Label
+                Properties:
+                  Text: ="Solvias"
+                  X: =22
+                  Y: =17
+                  Width: =150
+                  Height: =26
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =14
+                  Color: =RGBA(0, 73, 122, 1)
+            - recLogoDivider_New:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =60
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(227, 230, 234, 1)
+            - btnNewReq_New:
+                Control: Classic/Button
+                Properties:
+                  Text: ="+  New requisition"
+                  X: =12
+                  Y: =76
+                  Width: =224
+                  Height: =40
+                  Fill: =RGBA(0, 73, 122, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(Self.Fill, -10%)
+                  PressedFill: =ColorFade(Self.Fill, -20%)
+                  BorderStyle: =BorderStyle.None
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =11
+                  OnSelect: =Navigate(NewRequisition, ScreenTransition.None)
+            - lblSectionWorkspace_New:
+                Control: Label
+                Properties:
+                  Text: ="WORKSPACE"
+                  X: =22
+                  Y: =130
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - galNav_New:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =12
+                  Y: =152
+                  Width: =224
+                  Height: =210
+                  TemplateSize: =40
+                  TemplatePadding: =1
+                  ShowScrollbar: =false
+                  Items: |
+                    =Table(
+                      {Label:"Dashboard",    Screen:"Dashboard"},
+                      {Label:"Requisitions", Screen:"Requisitions"},
+                      {Label:"Approvals",    Screen:"Approvals"},
+                      {Label:"Suppliers",    Screen:"Suppliers"},
+                      {Label:"Analytics",    Screen:"Analytics"}
+                    )
+                  OnSelect: |
+                    =Switch(ThisItem.Screen,
+                      "Dashboard",    Navigate(Dashboard, ScreenTransition.None),
+                      "Requisitions", Navigate(Requisitions, ScreenTransition.None),
+                      "Approvals",    Navigate(Approvals, ScreenTransition.None),
+                      "Suppliers",    Navigate(Suppliers, ScreenTransition.None),
+                      "Analytics",    Navigate(Analytics, ScreenTransition.None))
+                Children:
+                  - recNavActive_New:
+                      Control: Rectangle
+                      Properties:
+                        X: =0
+                        Y: =2
+                        Width: =224
+                        Height: =36
+                        Fill: =If(ThisItem.Screen = "NewRequisition", RGBA(229, 237, 243, 1), RGBA(0, 0, 0, 0))
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        OnSelect: =Select(Parent)
+                  - lblNavItem_New:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Label
+                        X: =14
+                        Y: =2
+                        Width: =200
+                        Height: =36
+                        Font: =Font.Arial
+                        Size: =11
+                        FontWeight: =If(ThisItem.Screen = "NewRequisition", FontWeight.Bold, FontWeight.Normal)
+                        Color: =If(ThisItem.Screen = "NewRequisition", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                        OnSelect: =Select(Parent)
+            - lblSectionAdmin_New:
+                Control: Label
+                Properties:
+                  Text: ="ADMINISTRATION"
+                  X: =22
+                  Y: =372
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblNavSettings_New:
+                Control: Label
+                Properties:
+                  Text: ="Settings"
+                  X: =26
+                  Y: =394
+                  Width: =210
+                  Height: =36
+                  Font: =Font.Arial
+                  Size: =11
+                  Color: =If("NewRequisition" = "Settings", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                  FontWeight: =If("NewRequisition" = "Settings", FontWeight.Bold, FontWeight.Normal)
+                  OnSelect: =Navigate(Settings, ScreenTransition.None)
+            - recUserDivider_New:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =700
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(236, 239, 242, 1)
+            - lblUserName_New:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "M. Brunner", "Lina Roth")
+                  X: =62
+                  Y: =712
+                  Width: =170
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Color: =RGBA(64, 64, 65, 1)
+            - lblUserRole_New:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "Finance lead · Approver", "Procurement lead · Requester")
+                  X: =62
+                  Y: =732
+                  Width: =180
+                  Height: =18
+                  Font: =Font.Arial
+                  Size: =8.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblUserAvatar_New:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "MB", "LR")
+                  X: =18
+                  Y: =714
+                  Width: =34
+                  Height: =34
+                  Align: =Align.Center
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(0, 73, 122, 1)
+                  Fill: =RGBA(229, 237, 243, 1)
+
+
+      - lblNewEyebrow:
+          Control: Label
+          Properties:
+            Text: ="NEW REQUISITION"
+            X: =282
+            Y: =70
+            Width: =300
+            Height: =18
+            Font: =Font.Arial
+            FontWeight: =FontWeight.Bold
+            Size: =7.5
+            Color: =RGBA(140, 140, 141, 1)
+      - lblNewTitle:
+          Control: Label
+          Properties:
+            Text: =Switch(varStep, 1, "Basic details", 2, "Line items", "Review & submit")
+            X: =282
+            Y: =88
+            Width: =600
+            Height: =40
+            Font: =Font.Arial
+            FontWeight: =FontWeight.Lighter
+            Size: =24
+            Color: =RGBA(0, 73, 122, 1)
+      - conWizard:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =282
+            Y: =140
+            Width: =760
+            Height: =594
+            Fill: =RGBA(255, 255, 255, 1)
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+          Children:
+            - galStepper:
+                Control: Gallery
+                Variant: galleryHorizontal
+                Properties:
+                  X: =22
+                  Y: =14
+                  Width: =716
+                  Height: =36
+                  TemplateSize: =238
+                  TemplatePadding: =0
+                  ShowScrollbar: =false
+                  Items: |
+                    =Table({N:1, L:"Details"}, {N:2, L:"Line items"}, {N:3, L:"Review"})
+                Children:
+                  - lblStepNum:
+                      Control: Label
+                      Properties:
+                        Text: =If(ThisItem.N < varStep, "✓", Text(ThisItem.N))
+                        X: =0
+                        Y: =6
+                        Width: =24
+                        Height: =24
+                        Align: =Align.Center
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        FontWeight: =FontWeight.Bold
+                        Size: =9
+                        Color: |
+                          =If(ThisItem.N < varStep, RGBA(0,73,122,1),
+                             If(ThisItem.N = varStep, RGBA(255,255,255,1), RGBA(140,140,141,1)))
+                        Fill: |
+                          =If(ThisItem.N < varStep, RGBA(175,209,0,1),
+                             If(ThisItem.N = varStep, RGBA(0,73,122,1), RGBA(236,236,236,1)))
+                  - lblStepLabel:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.L
+                        X: =32
+                        Y: =6
+                        Width: =120
+                        Height: =24
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        FontWeight: =If(ThisItem.N = varStep, FontWeight.Bold, FontWeight.Normal)
+                        Size: =10
+                        Color: =If(ThisItem.N = varStep, RGBA(0,73,122,1), RGBA(140,140,141,1))
+            - recStepperDiv:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =58
+                  Width: =760
+                  Height: =1
+                  Fill: =RGBA(236, 239, 242, 1)
+            - lblFldTitle:
+                Control: Label
+                Properties:
+                  Text: ="Title"
+                  X: =22
+                  Y: =74
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - txtNewTitle:
+                Control: Classic/TextInput
+                Properties:
+                  Default: =""
+                  HintText: ="e.g. HPLC column replacement — Q3 batch"
+                  X: =22
+                  Y: =94
+                  Width: =716
+                  Height: =38
+                  Font: =Font.Arial
+                  Size: =10.5
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  BorderThickness: =1
+                  RadiusTopLeft: =7
+                  RadiusTopRight: =7
+                  RadiusBottomLeft: =7
+                  RadiusBottomRight: =7
+                  Visible: =varStep = 1
+            - lblFldVendor:
+                Control: Label
+                Properties:
+                  Text: ="Vendor"
+                  X: =22
+                  Y: =146
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - drpNewVendor:
+                Control: Classic/DropDown
+                Properties:
+                  Items: =["MilliporeSigma","VWR International","Memmert","Waters","Thermo Fisher","Eppendorf"]
+                  X: =22
+                  Y: =166
+                  Width: =348
+                  Height: =38
+                  Font: =Font.Arial
+                  Size: =10.5
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  Visible: =varStep = 1
+            - lblFldCc:
+                Control: Label
+                Properties:
+                  Text: ="Cost center"
+                  X: =390
+                  Y: =146
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - drpNewCc:
+                Control: Classic/DropDown
+                Properties:
+                  Items: =["QC-AnalyticalDev","QC-Stability","OPS-Cleanroom","OPS-LabCommons","RD-Methods","RD-Impurities","GMP-Manufacturing","IT-Infrastructure"]
+                  X: =390
+                  Y: =166
+                  Width: =348
+                  Height: =38
+                  Font: =Font.Arial
+                  Size: =10.5
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  Visible: =varStep = 1
+            - lblFldDate:
+                Control: Label
+                Properties:
+                  Text: ="Needed by"
+                  X: =22
+                  Y: =218
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - dteNewNeeded:
+                Control: Classic/DatePicker
+                Properties:
+                  DefaultDate: =Today() + 30
+                  X: =22
+                  Y: =238
+                  Width: =348
+                  Height: =38
+                  Font: =Font.Arial
+                  Size: =10.5
+                  Visible: =varStep = 1
+            - lblFldPriority:
+                Control: Label
+                Properties:
+                  Text: ="Priority"
+                  X: =390
+                  Y: =218
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - drpNewPriority:
+                Control: Classic/DropDown
+                Properties:
+                  Items: =["Standard","Urgent — within 7 days","Critical — escalate"]
+                  X: =390
+                  Y: =238
+                  Width: =348
+                  Height: =38
+                  Font: =Font.Arial
+                  Size: =10.5
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  Visible: =varStep = 1
+            - lblFldJust:
+                Control: Label
+                Properties:
+                  Text: ="Business justification"
+                  X: =22
+                  Y: =290
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - txtNewJust:
+                Control: Classic/TextInput
+                Properties:
+                  Mode: =TextMode.MultiLine
+                  Default: =""
+                  HintText: ="Why is this purchase needed? Which study or method does it support?"
+                  X: =22
+                  Y: =310
+                  Width: =716
+                  Height: =80
+                  Font: =Font.Arial
+                  Size: =10.5
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  BorderThickness: =1
+                  Visible: =varStep = 1
+            - lblFldAttach:
+                Control: Label
+                Properties:
+                  Text: ="Attachments"
+                  X: =22
+                  Y: =402
+                  Width: =300
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 1
+            - galNewFiles:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =22
+                  Y: =422
+                  Width: =716
+                  Height: =60
+                  TemplateSize: =30
+                  TemplatePadding: =2
+                  Items: =colNewFiles
+                  Visible: =varStep = 1
+                Children:
+                  - lblNewFileName:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.FileName & "   ·   " & ThisItem.Size
+                        X: =10
+                        Y: =0
+                        Width: =620
+                        Height: =28
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        Size: =9.5
+                        Color: =RGBA(64, 64, 65, 1)
+                  - lblNewFileRemove:
+                      Control: Label
+                      Properties:
+                        Text: ="✕"
+                        X: =680
+                        Y: =0
+                        Width: =28
+                        Height: =28
+                        Align: =Align.Center
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        Size: =10
+                        Color: =RGBA(140, 140, 141, 1)
+                        OnSelect: =Remove(colNewFiles, ThisItem)
+            - btnNewAttach:
+                Control: Classic/Button
+                Properties:
+                  Text: ="📎  Attach quote or spec — PDF up to 25 MB"
+                  X: =22
+                  Y: =488
+                  Width: =716
+                  Height: =40
+                  Fill: =RGBA(247, 248, 250, 1)
+                  Color: =RGBA(0, 73, 122, 1)
+                  BorderColor: =RGBA(199, 204, 210, 1)
+                  BorderThickness: =1
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Visible: =varStep = 1
+                  OnSelect: |
+                    =Collect(colNewFiles, {FileName: "Quote_" & drpNewVendor.Selected.Value & ".pdf", Size: "312 KB"})
+            - galNewLines:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =22
+                  Y: =74
+                  Width: =716
+                  Height: =330
+                  TemplateSize: =50
+                  TemplatePadding: =4
+                  Items: =colNewLines
+                  Visible: =varStep = 2
+                Children:
+                  - txtLineSku:
+                      Control: Classic/TextInput
+                      Properties:
+                        Default: =ThisItem.SKU
+                        HintText: ="SKU"
+                        X: =0
+                        Y: =4
+                        Width: =90
+                        Height: =38
+                        Font: =Font.Arial
+                        Size: =9.5
+                        BorderColor: =RGBA(227, 230, 234, 1)
+                        BorderThickness: =1
+                        OnChange: |-
+                          =Patch(colNewLines, ThisItem, {SKU: Self.Text})
+                  - txtLineDesc:
+                      Control: Classic/TextInput
+                      Properties:
+                        Default: =ThisItem.Desc
+                        HintText: ="Description"
+                        X: =98
+                        Y: =4
+                        Width: =330
+                        Height: =38
+                        Font: =Font.Arial
+                        Size: =9.5
+                        BorderColor: =RGBA(227, 230, 234, 1)
+                        BorderThickness: =1
+                        OnChange: |-
+                          =Patch(colNewLines, ThisItem, {Desc: Self.Text})
+                  - txtLineQty:
+                      Control: Classic/TextInput
+                      Properties:
+                        Default: =Text(ThisItem.Qty)
+                        X: =436
+                        Y: =4
+                        Width: =60
+                        Height: =38
+                        Font: =Font.Arial
+                        Size: =9.5
+                        BorderColor: =RGBA(227, 230, 234, 1)
+                        BorderThickness: =1
+                        OnChange: |-
+                          =Patch(colNewLines, ThisItem, {Qty: Value(Self.Text)})
+                  - txtLinePrice:
+                      Control: Classic/TextInput
+                      Properties:
+                        Default: =Text(ThisItem.Price)
+                        X: =504
+                        Y: =4
+                        Width: =90
+                        Height: =38
+                        Align: =Align.Right
+                        Font: =Font.Arial
+                        Size: =9.5
+                        BorderColor: =RGBA(227, 230, 234, 1)
+                        BorderThickness: =1
+                        OnChange: |-
+                          =Patch(colNewLines, ThisItem, {Price: Value(Self.Text)})
+                  - lblLineSum:
+                      Control: Label
+                      Properties:
+                        Text: ="$" & Text(ThisItem.Qty * ThisItem.Price, "#,##0.00")
+                        X: =600
+                        Y: =4
+                        Width: =80
+                        Height: =38
+                        Align: =Align.Right
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        FontWeight: =FontWeight.Bold
+                        Size: =9.5
+                        Color: =RGBA(64, 64, 65, 1)
+                  - lblLineDelete:
+                      Control: Label
+                      Properties:
+                        Text: ="✕"
+                        X: =688
+                        Y: =4
+                        Width: =28
+                        Height: =38
+                        Align: =Align.Center
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        Size: =10
+                        Color: =RGBA(140, 140, 141, 1)
+                        OnSelect: =Remove(colNewLines, ThisItem)
+            - btnAddLine:
+                Control: Classic/Button
+                Properties:
+                  Text: ="+ Add line"
+                  X: =22
+                  Y: =414
+                  Width: =110
+                  Height: =34
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Color: =RGBA(0, 73, 122, 1)
+                  BorderStyle: =BorderStyle.None
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Visible: =varStep = 2
+                  OnSelect: =Collect(colNewLines, {SKU:"", Desc:"", Qty:1, Price:0})
+            - lblNewTotals:
+                Control: Label
+                Properties:
+                  Text: |
+                    ="Subtotal  $" & Text(Sum(colNewLines, Qty * Price), "#,##0.00") &
+                     "     VAT (7.7%)  $" & Text(Sum(colNewLines, Qty * Price) * 0.077, "#,##0.00") &
+                     "     Total  $" & Text(Sum(colNewLines, Qty * Price) * 1.077, "#,##0.00")
+                  X: =22
+                  Y: =470
+                  Width: =716
+                  Height: =28
+                  Align: =Align.Right
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =11
+                  Color: =RGBA(0, 73, 122, 1)
+                  Visible: =varStep = 2
+            - lblReviewKeys:
+                Control: Label
+                Properties:
+                  Text: ="Title" & Char(10) & "Vendor" & Char(10) & "Cost center" & Char(10) & "Needed by" & Char(10) & "Priority" & Char(10) & "Line items" & Char(10) & "Attachments" & Char(10) & "Total"
+                  X: =22
+                  Y: =80
+                  Width: =130
+                  Height: =280
+                  Font: =Font.Arial
+                  Size: =10
+                  LineHeight: =2
+                  Color: =RGBA(140, 140, 141, 1)
+                  Visible: =varStep = 3
+            - lblReviewVals:
+                Control: Label
+                Properties:
+                  Text: |
+                    =Coalesce(txtNewTitle.Text, "—") & Char(10) &
+                     drpNewVendor.Selected.Value & Char(10) &
+                     drpNewCc.Selected.Value & Char(10) &
+                     Text(dteNewNeeded.SelectedDate, "dd mmm yyyy") & Char(10) &
+                     drpNewPriority.Selected.Value & Char(10) &
+                     CountRows(colNewLines) & Char(10) &
+                     CountRows(colNewFiles) & Char(10) &
+                     "$" & Text(Sum(colNewLines, Qty * Price) * 1.077, "#,##0.00")
+                  X: =170
+                  Y: =80
+                  Width: =450
+                  Height: =280
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  LineHeight: =2
+                  Color: =RGBA(64, 64, 65, 1)
+                  Visible: =varStep = 3
+            - lblRoutingInfo:
+                Control: Label
+                Properties:
+                  Text: ="On submit, this requisition routes to A. Keller (lab manager), then M. Brunner (finance lead). You will be notified at each step."
+                  X: =22
+                  Y: =380
+                  Width: =716
+                  Height: =54
+                  PaddingLeft: =16
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  Size: =10
+                  Color: =RGBA(0, 73, 122, 1)
+                  Fill: =RGBA(229, 237, 243, 1)
+                  Visible: =varStep = 3
+            - recFooter:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =536
+                  Width: =760
+                  Height: =58
+                  Fill: =RGBA(247, 248, 250, 1)
+            - btnWizCancel:
+                Control: Classic/Button
+                Properties:
+                  Text: ="Cancel"
+                  X: =22
+                  Y: =546
+                  Width: =90
+                  Height: =38
+                  Fill: =RGBA(0, 0, 0, 0)
+                  Color: =RGBA(0, 73, 122, 1)
+                  BorderStyle: =BorderStyle.None
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  OnSelect: =Navigate(Requisitions, ScreenTransition.None)
+            - btnWizBack:
+                Control: Classic/Button
+                Properties:
+                  Text: ="← Back"
+                  X: =518
+                  Y: =546
+                  Width: =100
+                  Height: =38
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Color: =RGBA(0, 73, 122, 1)
+                  BorderColor: =RGBA(0, 73, 122, 1)
+                  BorderThickness: =1
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Visible: =varStep > 1
+                  OnSelect: =Set(varStep, varStep - 1)
+            - btnWizNext:
+                Control: Classic/Button
+                Properties:
+                  Text: =If(varStep < 3, "Continue →", "✓ Submit for approval")
+                  X: =628
+                  Y: =546
+                  Width: =If(varStep < 3, 110, 180)
+                  Height: =38
+                  Fill: =If(varStep < 3, RGBA(0, 73, 122, 1), RGBA(175, 209, 0, 1))
+                  Color: =If(varStep < 3, RGBA(255, 255, 255, 1), RGBA(0, 73, 122, 1))
+                  HoverFill: =ColorFade(Self.Fill, -10%)
+                  BorderStyle: =BorderStyle.None
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  OnSelect: |
+                    =If(varStep < 3,
+                      Set(varStep, varStep + 1),
+                      With({newId: "PR-2026-" & Text(184 + CountRows(colRequisitions), "00000")},
+                        Collect(colRequisitions, {
+                          Id: newId,
+                          Title: Coalesce(txtNewTitle.Text, "Untitled requisition"),
+                          Vendor: drpNewVendor.Selected.Value,
+                          CostCenter: drpNewCc.Selected.Value,
+                          Amount: Sum(colNewLines, Qty * Price) * 1.077,
+                          Status: "Pending",
+                          Requester: If(varRole = "Approver", "M. Brunner", "Lina Roth"),
+                          NeededBy: dteNewNeeded.SelectedDate
+                        });
+                        Notify(newId & " submitted for approval", NotificationType.Success);
+                        Set(varStep, 1);
+                        Clear(colNewLines);
+                        Clear(colNewFiles);
+                        Navigate(Approvals, ScreenTransition.None)))
+

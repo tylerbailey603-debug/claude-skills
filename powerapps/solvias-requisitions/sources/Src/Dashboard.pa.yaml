@@ -1,0 +1,566 @@
+Screens:
+  Dashboard:
+    Properties:
+      Fill: =RGBA(247, 248, 250, 1)
+    Children:
+
+      - conSidebar_Dash:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =0
+            Y: =0
+            Width: =248
+            Height: =768
+            Fill: =RGBA(255, 255, 255, 1)
+          Children:
+            - recSideBorder_Dash:
+                Control: Rectangle
+                Properties:
+                  X: =247
+                  Y: =0
+                  Width: =1
+                  Height: =768
+                  Fill: =RGBA(227, 230, 234, 1)
+            - lblLogo_Dash:
+                Control: Label
+                Properties:
+                  Text: ="Solvias"
+                  X: =22
+                  Y: =17
+                  Width: =150
+                  Height: =26
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =14
+                  Color: =RGBA(0, 73, 122, 1)
+            - recLogoDivider_Dash:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =60
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(227, 230, 234, 1)
+            - btnNewReq_Dash:
+                Control: Classic/Button
+                Properties:
+                  Text: ="+  New requisition"
+                  X: =12
+                  Y: =76
+                  Width: =224
+                  Height: =40
+                  Fill: =RGBA(0, 73, 122, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(Self.Fill, -10%)
+                  PressedFill: =ColorFade(Self.Fill, -20%)
+                  BorderStyle: =BorderStyle.None
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =11
+                  OnSelect: =Navigate(NewRequisition, ScreenTransition.None)
+            - lblSectionWorkspace_Dash:
+                Control: Label
+                Properties:
+                  Text: ="WORKSPACE"
+                  X: =22
+                  Y: =130
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - galNav_Dash:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =12
+                  Y: =152
+                  Width: =224
+                  Height: =210
+                  TemplateSize: =40
+                  TemplatePadding: =1
+                  ShowScrollbar: =false
+                  Items: |
+                    =Table(
+                      {Label:"Dashboard",    Screen:"Dashboard"},
+                      {Label:"Requisitions", Screen:"Requisitions"},
+                      {Label:"Approvals",    Screen:"Approvals"},
+                      {Label:"Suppliers",    Screen:"Suppliers"},
+                      {Label:"Analytics",    Screen:"Analytics"}
+                    )
+                  OnSelect: |
+                    =Switch(ThisItem.Screen,
+                      "Dashboard",    Navigate(Dashboard, ScreenTransition.None),
+                      "Requisitions", Navigate(Requisitions, ScreenTransition.None),
+                      "Approvals",    Navigate(Approvals, ScreenTransition.None),
+                      "Suppliers",    Navigate(Suppliers, ScreenTransition.None),
+                      "Analytics",    Navigate(Analytics, ScreenTransition.None))
+                Children:
+                  - recNavActive_Dash:
+                      Control: Rectangle
+                      Properties:
+                        X: =0
+                        Y: =2
+                        Width: =224
+                        Height: =36
+                        Fill: =If(ThisItem.Screen = "Dashboard", RGBA(229, 237, 243, 1), RGBA(0, 0, 0, 0))
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        OnSelect: =Select(Parent)
+                  - lblNavItem_Dash:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Label
+                        X: =14
+                        Y: =2
+                        Width: =200
+                        Height: =36
+                        Font: =Font.Arial
+                        Size: =11
+                        FontWeight: =If(ThisItem.Screen = "Dashboard", FontWeight.Bold, FontWeight.Normal)
+                        Color: =If(ThisItem.Screen = "Dashboard", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                        OnSelect: =Select(Parent)
+            - lblSectionAdmin_Dash:
+                Control: Label
+                Properties:
+                  Text: ="ADMINISTRATION"
+                  X: =22
+                  Y: =372
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblNavSettings_Dash:
+                Control: Label
+                Properties:
+                  Text: ="Settings"
+                  X: =26
+                  Y: =394
+                  Width: =210
+                  Height: =36
+                  Font: =Font.Arial
+                  Size: =11
+                  Color: =If("Dashboard" = "Settings", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                  FontWeight: =If("Dashboard" = "Settings", FontWeight.Bold, FontWeight.Normal)
+                  OnSelect: =Navigate(Settings, ScreenTransition.None)
+            - recUserDivider_Dash:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =700
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(236, 239, 242, 1)
+            - lblUserName_Dash:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "M. Brunner", "Lina Roth")
+                  X: =62
+                  Y: =712
+                  Width: =170
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Color: =RGBA(64, 64, 65, 1)
+            - lblUserRole_Dash:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "Finance lead · Approver", "Procurement lead · Requester")
+                  X: =62
+                  Y: =732
+                  Width: =180
+                  Height: =18
+                  Font: =Font.Arial
+                  Size: =8.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblUserAvatar_Dash:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "MB", "LR")
+                  X: =18
+                  Y: =714
+                  Width: =34
+                  Height: =34
+                  Align: =Align.Center
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(0, 73, 122, 1)
+                  Fill: =RGBA(229, 237, 243, 1)
+
+
+      - lblDashTitle:
+          Control: Label
+          Properties:
+            Text: ="Good morning, " & If(varRole = "Approver", "Marc", "Lina") & "."
+            X: =282
+            Y: =84
+            Width: =600
+            Height: =40
+            Font: =Font.Arial
+            FontWeight: =FontWeight.Lighter
+            Size: =24
+            Color: =RGBA(0, 73, 122, 1)
+      - lblDashSub:
+          Control: Label
+          Properties:
+            Text: =CountRows(Filter(colRequisitions, Status in ["Pending","Review"])) & " requisitions need your attention this week."
+            X: =282
+            Y: =124
+            Width: =600
+            Height: =22
+            Font: =Font.Arial
+            Size: =10.5
+            Color: =RGBA(140, 140, 141, 1)
+      - conNeedsYou:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =282
+            Y: =158
+            Width: =1050
+            Height: =64
+            Fill: =RGBA(229, 237, 243, 1)
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+          Children:
+            - lblNeedsYouTitle:
+                Control: Label
+                Properties:
+                  Text: |
+                    =CountRows(Filter(colRequisitions, Status in ["Pending","Review"])) &
+                     If(varRole = "Approver", " requisitions are waiting for your approval", " requisitions are in the approval queue")
+                  X: =18
+                  Y: =10
+                  Width: =700
+                  Height: =24
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10.5
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblNeedsYouSub:
+                Control: Label
+                Properties:
+                  Text: ="Oldest has been pending 3 days · " & Text(Sum(Filter(colRequisitions, Status in ["Pending","Review"]), Amount), "$#,##0.00") & " total"
+                  X: =18
+                  Y: =34
+                  Width: =700
+                  Height: =20
+                  Font: =Font.Arial
+                  Size: =9
+                  Color: =RGBA(140, 140, 141, 1)
+            - btnReviewApprovals:
+                Control: Classic/Button
+                Properties:
+                  Text: ="Review approvals →"
+                  X: =870
+                  Y: =14
+                  Width: =164
+                  Height: =36
+                  Fill: =RGBA(0, 73, 122, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(Self.Fill, -10%)
+                  BorderStyle: =BorderStyle.None
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  OnSelect: =Navigate(Approvals, ScreenTransition.None)
+      - galKpis:
+          Control: Gallery
+          Variant: galleryHorizontal
+          Properties:
+            X: =282
+            Y: =238
+            Width: =1050
+            Height: =110
+            TemplateSize: =262
+            TemplatePadding: =0
+            ShowScrollbar: =false
+            Items: |
+              =Table(
+                {Label:"OPEN REQUISITIONS",      Value:Text(CountRows(Filter(colRequisitions, Status in ["Pending","Review","Draft"]))), Sub:"vs last week"},
+                {Label:"AWAITING YOUR APPROVAL", Value:Text(CountRows(Filter(colRequisitions, Status in ["Pending","Review"]))),          Sub:"2 escalated"},
+                {Label:"SPEND THIS QUARTER",     Value:"$" & Text(Round(Sum(Filter(colRequisitions, Status = "Approved"), Amount)/1000, 0)) & "k", Sub:"of $520k budget"},
+                {Label:"AVG CYCLE TIME",         Value:"2.4d", Sub:"vs target 3.0d"}
+              )
+          Children:
+            - recKpiCard:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =0
+                  Width: =254
+                  Height: =110
+                  Fill: =RGBA(255, 255, 255, 1)
+                  BorderColor: =RGBA(227, 230, 234, 1)
+                  BorderThickness: =1
+                  BorderStyle: =BorderStyle.Solid
+                  RadiusTopLeft: =10
+                  RadiusTopRight: =10
+                  RadiusBottomLeft: =10
+                  RadiusBottomRight: =10
+            - lblKpiLabel:
+                Control: Label
+                Properties:
+                  Text: =ThisItem.Label
+                  X: =20
+                  Y: =14
+                  Width: =220
+                  Height: =18
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblKpiValue:
+                Control: Label
+                Properties:
+                  Text: =ThisItem.Value
+                  X: =20
+                  Y: =34
+                  Width: =220
+                  Height: =44
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Lighter
+                  Size: =26
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblKpiSub:
+                Control: Label
+                Properties:
+                  Text: =ThisItem.Sub
+                  X: =20
+                  Y: =80
+                  Width: =220
+                  Height: =18
+                  Font: =Font.Arial
+                  Size: =9
+                  Color: =RGBA(140, 140, 141, 1)
+      - conRecentCard:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =282
+            Y: =364
+            Width: =1050
+            Height: =370
+            Fill: =RGBA(255, 255, 255, 1)
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+          Children:
+            - lblRecentTitle:
+                Control: Label
+                Properties:
+                  Text: ="Recent requisitions"
+                  X: =20
+                  Y: =10
+                  Width: =400
+                  Height: =28
+                  Font: =Font.Arial
+                  Size: =13
+                  Color: =RGBA(0, 73, 122, 1)
+            - recRecentHead:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =46
+                  Width: =1050
+                  Height: =30
+                  Fill: =RGBA(229, 237, 243, 1)
+            - lblHeadPr:
+                Control: Label
+                Properties:
+                  Text: ="PR #"
+                  X: =20
+                  Y: =46
+                  Width: =140
+                  Height: =30
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblHeadTitle:
+                Control: Label
+                Properties:
+                  Text: ="TITLE"
+                  X: =170
+                  Y: =46
+                  Width: =380
+                  Height: =30
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblHeadVendor:
+                Control: Label
+                Properties:
+                  Text: ="VENDOR"
+                  X: =560
+                  Y: =46
+                  Width: =180
+                  Height: =30
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblHeadAmount:
+                Control: Label
+                Properties:
+                  Text: ="AMOUNT"
+                  X: =750
+                  Y: =46
+                  Width: =120
+                  Height: =30
+                  Align: =Align.Right
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(0, 73, 122, 1)
+            - lblHeadStatus:
+                Control: Label
+                Properties:
+                  Text: ="STATUS"
+                  X: =900
+                  Y: =46
+                  Width: =130
+                  Height: =30
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =8
+                  Color: =RGBA(0, 73, 122, 1)
+            - galRecent:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =0
+                  Y: =76
+                  Width: =1050
+                  Height: =290
+                  TemplateSize: =48
+                  TemplatePadding: =0
+                  Items: =FirstN(colRequisitions, 6)
+                  OnSelect: =Set(varSelectedPr, ThisItem.Id); Navigate(RequisitionDetail, ScreenTransition.None)
+                Children:
+                  - lblRowPr:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Id
+                        X: =20
+                        Y: =0
+                        Width: =140
+                        Height: =48
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.'Courier New'
+                        Size: =9
+                        Color: =RGBA(140, 140, 141, 1)
+                        OnSelect: =Select(Parent)
+                  - lblRowTitle:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Title
+                        X: =170
+                        Y: =0
+                        Width: =380
+                        Height: =48
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        FontWeight: =FontWeight.Bold
+                        Size: =10
+                        Color: =RGBA(64, 64, 65, 1)
+                        OnSelect: =Select(Parent)
+                  - lblRowVendor:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Vendor
+                        X: =560
+                        Y: =0
+                        Width: =180
+                        Height: =48
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        Size: =10
+                        Color: =RGBA(64, 64, 65, 1)
+                        OnSelect: =Select(Parent)
+                  - lblRowAmount:
+                      Control: Label
+                      Properties:
+                        Text: =If(varCurrency = "CHF", "CHF ", "$") & Text(ThisItem.Amount, "#,##0.00")
+                        X: =750
+                        Y: =0
+                        Width: =120
+                        Height: =48
+                        Align: =Align.Right
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        Size: =10
+                        Color: =RGBA(64, 64, 65, 1)
+                        OnSelect: =Select(Parent)
+                  - lblRowStatus:
+                      Control: Label
+                      Properties:
+                        Text: |
+                          =Switch(ThisItem.Status,
+                            "Pending", "Awaiting approval",
+                            "Review", "In review",
+                            "Returned", "Returned for edit",
+                            ThisItem.Status)
+                        X: =900
+                        Y: =12
+                        Width: =130
+                        Height: =24
+                        Align: =Align.Center
+                        VerticalAlign: =VerticalAlign.Middle
+                        Font: =Font.Arial
+                        FontWeight: =FontWeight.Bold
+                        Size: =8.5
+                        Color: |
+                          =Switch(ThisItem.Status,
+                            "Draft", RGBA(64,64,65,1),
+                            "Pending", RGBA(0,73,122,1),
+                            "Review", RGBA(122,90,0,1),
+                            "Approved", RGBA(74,107,0,1),
+                            "Returned", RGBA(122,90,0,1),
+                            "Rejected", RGBA(197,0,68,1),
+                            RGBA(0,73,122,1))
+                        Fill: |
+                          =Switch(ThisItem.Status,
+                            "Draft", RGBA(236,236,236,1),
+                            "Pending", RGBA(239,247,249,1),
+                            "Review", RGBA(251,243,220,1),
+                            "Approved", RGBA(247,250,229,1),
+                            "Returned", RGBA(251,243,220,1),
+                            "Rejected", RGBA(249,229,237,1),
+                            RGBA(229,237,243,1))
+                        OnSelect: =Select(Parent)
+                  - recRowDivider:
+                      Control: Rectangle
+                      Properties:
+                        X: =0
+                        Y: =47
+                        Width: =1050
+                        Height: =1
+                        Fill: =RGBA(236, 239, 242, 1)
+

@@ -1,0 +1,29 @@
+App:
+  Properties:
+    OnStart: |
+      =ClearCollect(colRequisitions,
+        {Id:"PR-2026-00184", Title:"HPLC column replacement — Q2 batch", Vendor:"MilliporeSigma", CostCenter:"QC-AnalyticalDev", Amount:12450.00, Status:"Pending", Requester:"Lina Roth", NeededBy:Date(2026,6,12), Justification:"Replacement campaign tied to method-transfer for Project Mira.", DecisionMode:"", DecisionReason:""},
+        {Id:"PR-2026-00181", Title:"Method-transfer reference standards", Vendor:"MilliporeSigma", CostCenter:"RD-Methods", Amount:9810.50, Status:"Review", Requester:"P. Schurr", NeededBy:Date(2026,6,4), Justification:"Certified reference standards for assay MT-118.", DecisionMode:"", DecisionReason:""},
+        {Id:"PR-2026-00183", Title:"Cleanroom consumables (Q2)", Vendor:"VWR International", CostCenter:"OPS-Cleanroom", Amount:4820.00, Status:"Pending", Requester:"J. Hottinger", NeededBy:Date(2026,5,28), Justification:"Routine quarterly replenishment for ISO 7 suite.", DecisionMode:"", DecisionReason:""},
+        {Id:"PR-2026-00182", Title:"Stability chamber service contract renewal", Vendor:"Memmert", CostCenter:"QC-Stability", Amount:2150.00, Status:"Draft", Requester:"Lina Roth", NeededBy:Date(2026,7,1), Justification:"Annual PM + IQ/OQ re-qualification.", DecisionMode:"", DecisionReason:""},
+        {Id:"PR-2026-00180", Title:"Mass-spec consumables — preventative", Vendor:"Waters", CostCenter:"QC-AnalyticalDev", Amount:18240.00, Status:"Approved", Requester:"Lina Roth", NeededBy:Date(2026,5,22), Justification:"", DecisionMode:"", DecisionReason:""},
+        {Id:"PR-2026-00178", Title:"Custom synthesis — impurity standards", Vendor:"Thermo Fisher", CostCenter:"RD-Impurities", Amount:24600.00, Status:"Rejected", Requester:"P. Schurr", NeededBy:Date(2026,6,30), Justification:"Single-source custom synthesis.", DecisionMode:"Reject", DecisionReason:"Quote exceeded threshold; re-scope requested."}
+      );
+      ClearCollect(colRequisitionLines,
+        {PRNumber:"PR-2026-00184", SKU:"ZGC18-250", Description:"Symmetry C18 column, 5 µm, 4.6 × 250 mm", Qty:4, Unit:"ea", UnitPrice:2280.00},
+        {PRNumber:"PR-2026-00184", SKU:"WAT-50000", Description:"Inline filter, 0.5 µm × 0.062 in.", Qty:12, Unit:"ea", UnitPrice:110.00},
+        {PRNumber:"PR-2026-00184", SKU:"KIT-09812", Description:"Performance verification kit", Qty:1, Unit:"kit", UnitPrice:2010.00}
+      );
+      ClearCollect(colAttachments, {PRNumber:"PR-2026-00184", FileName:"Quote_MilliporeSigma_2026-05.pdf"});
+      ClearCollect(colNewLines, {SKU:"", Desc:"", Qty:1, Price:0});
+      ClearCollect(colNewFiles, Table({FileName:"", Size:""}));
+      Clear(colNewFiles);
+      Set(varRole, "Requester");
+      Set(varCurrency, "USD");
+      Set(varSearch, "");
+      Set(varReqTab, "All");
+      Set(varSelectedPr, "PR-2026-00184");
+      Set(varStep, 1);
+      Set(varShowDecline, false);
+      Set(varDeclineId, "");
+      Set(varDeclineMode, "Return")

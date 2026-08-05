@@ -1,0 +1,225 @@
+Screens:
+  Analytics:
+    Properties:
+      Fill: =RGBA(247, 248, 250, 1)
+    Children:
+
+      - conSidebar_Ana:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            X: =0
+            Y: =0
+            Width: =248
+            Height: =768
+            Fill: =RGBA(255, 255, 255, 1)
+          Children:
+            - recSideBorder_Ana:
+                Control: Rectangle
+                Properties:
+                  X: =247
+                  Y: =0
+                  Width: =1
+                  Height: =768
+                  Fill: =RGBA(227, 230, 234, 1)
+            - lblLogo_Ana:
+                Control: Label
+                Properties:
+                  Text: ="Solvias"
+                  X: =22
+                  Y: =17
+                  Width: =150
+                  Height: =26
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =14
+                  Color: =RGBA(0, 73, 122, 1)
+            - recLogoDivider_Ana:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =60
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(227, 230, 234, 1)
+            - btnNewReq_Ana:
+                Control: Classic/Button
+                Properties:
+                  Text: ="+  New requisition"
+                  X: =12
+                  Y: =76
+                  Width: =224
+                  Height: =40
+                  Fill: =RGBA(0, 73, 122, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(Self.Fill, -10%)
+                  PressedFill: =ColorFade(Self.Fill, -20%)
+                  BorderStyle: =BorderStyle.None
+                  RadiusTopLeft: =6
+                  RadiusTopRight: =6
+                  RadiusBottomLeft: =6
+                  RadiusBottomRight: =6
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =11
+                  OnSelect: =Navigate(NewRequisition, ScreenTransition.None)
+            - lblSectionWorkspace_Ana:
+                Control: Label
+                Properties:
+                  Text: ="WORKSPACE"
+                  X: =22
+                  Y: =130
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - galNav_Ana:
+                Control: Gallery
+                Variant: galleryVertical
+                Properties:
+                  X: =12
+                  Y: =152
+                  Width: =224
+                  Height: =210
+                  TemplateSize: =40
+                  TemplatePadding: =1
+                  ShowScrollbar: =false
+                  Items: |
+                    =Table(
+                      {Label:"Dashboard",    Screen:"Dashboard"},
+                      {Label:"Requisitions", Screen:"Requisitions"},
+                      {Label:"Approvals",    Screen:"Approvals"},
+                      {Label:"Suppliers",    Screen:"Suppliers"},
+                      {Label:"Analytics",    Screen:"Analytics"}
+                    )
+                  OnSelect: |
+                    =Switch(ThisItem.Screen,
+                      "Dashboard",    Navigate(Dashboard, ScreenTransition.None),
+                      "Requisitions", Navigate(Requisitions, ScreenTransition.None),
+                      "Approvals",    Navigate(Approvals, ScreenTransition.None),
+                      "Suppliers",    Navigate(Suppliers, ScreenTransition.None),
+                      "Analytics",    Navigate(Analytics, ScreenTransition.None))
+                Children:
+                  - recNavActive_Ana:
+                      Control: Rectangle
+                      Properties:
+                        X: =0
+                        Y: =2
+                        Width: =224
+                        Height: =36
+                        Fill: =If(ThisItem.Screen = "Analytics", RGBA(229, 237, 243, 1), RGBA(0, 0, 0, 0))
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        OnSelect: =Select(Parent)
+                  - lblNavItem_Ana:
+                      Control: Label
+                      Properties:
+                        Text: =ThisItem.Label
+                        X: =14
+                        Y: =2
+                        Width: =200
+                        Height: =36
+                        Font: =Font.Arial
+                        Size: =11
+                        FontWeight: =If(ThisItem.Screen = "Analytics", FontWeight.Bold, FontWeight.Normal)
+                        Color: =If(ThisItem.Screen = "Analytics", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                        OnSelect: =Select(Parent)
+            - lblSectionAdmin_Ana:
+                Control: Label
+                Properties:
+                  Text: ="ADMINISTRATION"
+                  X: =22
+                  Y: =372
+                  Width: =200
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =7.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblNavSettings_Ana:
+                Control: Label
+                Properties:
+                  Text: ="Settings"
+                  X: =26
+                  Y: =394
+                  Width: =210
+                  Height: =36
+                  Font: =Font.Arial
+                  Size: =11
+                  Color: =If("Analytics" = "Settings", RGBA(0, 73, 122, 1), RGBA(64, 64, 65, 1))
+                  FontWeight: =If("Analytics" = "Settings", FontWeight.Bold, FontWeight.Normal)
+                  OnSelect: =Navigate(Settings, ScreenTransition.None)
+            - recUserDivider_Ana:
+                Control: Rectangle
+                Properties:
+                  X: =0
+                  Y: =700
+                  Width: =248
+                  Height: =1
+                  Fill: =RGBA(236, 239, 242, 1)
+            - lblUserName_Ana:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "M. Brunner", "Lina Roth")
+                  X: =62
+                  Y: =712
+                  Width: =170
+                  Height: =20
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =10
+                  Color: =RGBA(64, 64, 65, 1)
+            - lblUserRole_Ana:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "Finance lead · Approver", "Procurement lead · Requester")
+                  X: =62
+                  Y: =732
+                  Width: =180
+                  Height: =18
+                  Font: =Font.Arial
+                  Size: =8.5
+                  Color: =RGBA(140, 140, 141, 1)
+            - lblUserAvatar_Ana:
+                Control: Label
+                Properties:
+                  Text: =If(varRole = "Approver", "MB", "LR")
+                  X: =18
+                  Y: =714
+                  Width: =34
+                  Height: =34
+                  Align: =Align.Center
+                  VerticalAlign: =VerticalAlign.Middle
+                  Font: =Font.Arial
+                  FontWeight: =FontWeight.Bold
+                  Size: =9
+                  Color: =RGBA(0, 73, 122, 1)
+                  Fill: =RGBA(229, 237, 243, 1)
+
+      - lblTitle_Ana:
+          Control: Label
+          Properties:
+            Text: ="Analytics"
+            X: =282
+            Y: =84
+            Width: =600
+            Height: =40
+            Font: =Font.Arial
+            FontWeight: =FontWeight.Lighter
+            Size: =24
+            Color: =RGBA(0, 73, 122, 1)
+      - lblSub_Ana:
+          Control: Label
+          Properties:
+            Text: ="Spend, cycle time, and supplier performance. Build per screens-spec.md."
+            X: =282
+            Y: =124
+            Width: =800
+            Height: =22
+            Font: =Font.Arial
+            Size: =10.5
+            Color: =RGBA(140, 140, 141, 1)
