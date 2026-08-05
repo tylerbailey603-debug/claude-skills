@@ -79,7 +79,7 @@ Screens:
                   Color: =RGBA(140, 140, 141, 1)
             - galNav_Reqs:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =12
                   Y: =152
@@ -267,7 +267,7 @@ Screens:
             OnSelect: =Navigate(NewRequisition, ScreenTransition.None)
       - galReqTabs:
           Control: Gallery
-          Variant: galleryHorizontal
+          Variant: Horizontal
           Properties:
             X: =282
             Y: =158
@@ -325,7 +325,7 @@ Screens:
           Children:
             - galRequisitions:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =0
                   Y: =30

@@ -77,7 +77,7 @@ Screens:
                   Color: =RGBA(140, 140, 141, 1)
             - galNav_Ana:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =12
                   Y: =152

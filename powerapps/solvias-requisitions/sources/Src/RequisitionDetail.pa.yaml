@@ -79,7 +79,7 @@ Screens:
                   Color: =RGBA(140, 140, 141, 1)
             - galNav_Det:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =12
                   Y: =152
@@ -435,7 +435,7 @@ Screens:
                   Color: =RGBA(0, 73, 122, 1)
             - galLines:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =0
                   Y: =46
@@ -656,7 +656,7 @@ Screens:
                   Color: =RGBA(0, 73, 122, 1)
             - galAttach:
                 Control: Gallery
-                Variant: galleryVertical
+                Variant: Vertical
                 Properties:
                   X: =0
                   Y: =46
