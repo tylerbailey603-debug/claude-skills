@@ -48,6 +48,12 @@ needs the .NET 10 SDK).
   detected`. Variants are optional in the Source Code schema (Microsoft's own valid-YAML
   test corpus ships galleries without one), and the `Layout` property is what actually
   drives orientation — Studio emits it itself alongside the variant in its own exports.
+- Removed the 4 corner-radius properties from the 10 Rectangle controls that had
+  them (80 lines total): the classic Rectangle template has no `RadiusTopLeft/...`
+  properties (verified against Studio's own template XML), so Studio rejects or drops
+  them. Radius props on Button / TextInput / GroupContainer are valid and were kept.
+  Full property audit: every (control, property) pair across all screens was diffed
+  against the appMagic template definitions from real msapps — everything else passed.
 - Fixed 4 YAML syntax errors in `NewRequisition.pa.yaml` (lines with
   `OnChange: =Patch(colNewLines, ThisItem, {SKU: Self.Text})` etc.): an unquoted
   `{Key: Value}` record literal breaks YAML parsing, so those formulas were moved to

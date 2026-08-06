@@ -105,10 +105,6 @@
                   Width: =224
                   Height: =36
                   Fill: =If(ThisItem.Screen = "Approvals", RGBA(229, 237, 243, 1), RGBA(0, 0, 0, 0))
-                  RadiusTopLeft: =8
-                  RadiusTopRight: =8
-                  RadiusBottomLeft: =8
-                  RadiusBottomRight: =8
                   OnSelect: =Select(Parent)
             - lblNavItem_Appr:
                 Control: Label
@@ -245,10 +241,6 @@
             BorderColor: =RGBA(227, 230, 234, 1)
             BorderThickness: =1
             BorderStyle: =BorderStyle.Solid
-            RadiusTopLeft: =10
-            RadiusTopRight: =10
-            RadiusBottomLeft: =10
-            RadiusBottomRight: =10
       - recAppSide:
           Control: Rectangle
           Properties:
