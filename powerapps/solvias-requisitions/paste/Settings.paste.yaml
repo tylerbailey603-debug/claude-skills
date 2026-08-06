@@ -72,8 +72,8 @@
             Color: =RGBA(140, 140, 141, 1)
       - galNav_Set:
           Control: Gallery
-          Variant: Vertical
           Properties:
+            Layout: =Layout.Vertical
             X: =12
             Y: =152
             Width: =224

@@ -41,10 +41,13 @@ needs the .NET 10 SDK).
   layout already tablet 1366 × 768 landscape.
 - Screen files were flattened from `Src/Screens/*.pa.yaml` to `Src/*.pa.yaml` to match
   the documented msapp source layout.
-- Renamed all 18 Gallery variants from the retired early-preview names
-  (`galleryVertical`/`galleryHorizontal`) to the Source Code schema names
-  (`Vertical`/`Horizontal`) — Studio rejects the old names with
-  `PA2109: Unknown variant` / `PA4102: Early Preview code detected` on import.
+- Removed the `Variant:` line from all 18 galleries and set the explicit
+  `Layout: =Layout.Vertical` / `=Layout.Horizontal` property instead. The handoff
+  used the retired early-preview variant names (`galleryVertical`/`galleryHorizontal`),
+  which Studio rejects with `PA2109: Unknown variant` / `PA4102: Early Preview code
+  detected`. Variants are optional in the Source Code schema (Microsoft's own valid-YAML
+  test corpus ships galleries without one), and the `Layout` property is what actually
+  drives orientation — Studio emits it itself alongside the variant in its own exports.
 - Fixed 4 YAML syntax errors in `NewRequisition.pa.yaml` (lines with
   `OnChange: =Patch(colNewLines, ThisItem, {SKU: Self.Text})` etc.): an unquoted
   `{Key: Value}` record literal breaks YAML parsing, so those formulas were moved to

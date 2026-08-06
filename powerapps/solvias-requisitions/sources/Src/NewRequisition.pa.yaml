@@ -80,8 +80,8 @@ Screens:
                   Color: =RGBA(140, 140, 141, 1)
             - galNav_New:
                 Control: Gallery
-                Variant: Vertical
                 Properties:
+                  Layout: =Layout.Vertical
                   X: =12
                   Y: =152
                   Width: =224
@@ -244,8 +244,8 @@ Screens:
           Children:
             - galStepper:
                 Control: Gallery
-                Variant: Horizontal
                 Properties:
+                  Layout: =Layout.Horizontal
                   X: =22
                   Y: =14
                   Width: =716
@@ -469,8 +469,8 @@ Screens:
                   Visible: =varStep = 1
             - galNewFiles:
                 Control: Gallery
-                Variant: Vertical
                 Properties:
+                  Layout: =Layout.Vertical
                   X: =22
                   Y: =422
                   Width: =716
@@ -530,8 +530,8 @@ Screens:
                     =Collect(colNewFiles, {FileName: "Quote_" & drpNewVendor.Selected.Value & ".pdf", Size: "312 KB"})
             - galNewLines:
                 Control: Gallery
-                Variant: Vertical
                 Properties:
+                  Layout: =Layout.Vertical
                   X: =22
                   Y: =74
                   Width: =716
