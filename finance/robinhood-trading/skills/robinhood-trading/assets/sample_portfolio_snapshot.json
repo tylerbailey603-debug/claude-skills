@@ -1,0 +1,34 @@
+{
+  "as_of": "2026-08-07",
+  "account": {
+    "type": "agentic",
+    "cash": 1200.0,
+    "buying_power": 1200.0
+  },
+  "positions": [
+    {
+      "symbol": "AAPL",
+      "quantity": 3,
+      "avg_cost": 195.0,
+      "price": 210.0
+    },
+    {
+      "symbol": "MSFT",
+      "quantity": 2,
+      "avg_cost": 470.0,
+      "price": 452.0
+    },
+    {
+      "symbol": "VOO",
+      "quantity": 4,
+      "avg_cost": 520.0,
+      "price": 561.0
+    },
+    {
+      "symbol": "SNAP",
+      "quantity": 60,
+      "avg_cost": 14.5,
+      "price": 9.8
+    }
+  ]
+}

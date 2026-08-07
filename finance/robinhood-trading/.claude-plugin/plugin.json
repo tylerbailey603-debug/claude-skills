@@ -1,0 +1,15 @@
+{
+  "name": "robinhood-trading",
+  "description": "Human-gated equity trading loop for Robinhood's official agentic-trading MCP server (https://agent.robinhood.com/mcp/trading), bundled via .mcp.json with OAuth handled by Claude Code — no API keys, no stored credentials. Portfolio snapshot analysis (concentration/HHI, cash drag, loss-runners), a deterministic pre-trade risk gate modeled on SEC Rule 15c3-5 (budget, concentration, order-type, rate-limit and account checks — verdict is CLEARED-FOR-HUMAN-CONFIRMATION, never auto-approval), review-before-place order discipline, and an auditable local trade journal that refuses to record a placed order without a named human approval. Never places an order without explicit per-order human confirmation, never runs unattended trading loops, never gives investment advice. 3 stdlib Python tools.",
+  "version": "2.11.2",
+  "author": {
+    "name": "Alireza Rezvani",
+    "url": "https://alirezarezvani.com"
+  },
+  "homepage": "https://github.com/alirezarezvani/claude-skills/tree/main/finance/robinhood-trading",
+  "repository": "https://github.com/alirezarezvani/claude-skills",
+  "license": "MIT",
+  "skills": [
+    "./skills/robinhood-trading"
+  ]
+}
